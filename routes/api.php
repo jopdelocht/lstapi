@@ -34,13 +34,12 @@ Route::get('/stockitems', function () {
 //  });
 
 Route::get('/ingredients', function (Request $request) {
-   $ingredients = DB::table('ingredients')
-       ->join('allergens', 'allergens.id', '=', 'ingredients.allergen_id')
-       ->select('allergens.id as allergen', 'ingredients.id as ingredientId', 'ingredients.name as ingredient')
-       ->get();
-
-   return response()->json($ingredients);
-});
+    $ingredients = DB::table('ingredients')
+        ->join('allergens', 'allergens.id', '=', 'ingredients.allergen_id')
+        ->select('ingredients.id', 'ingredients.name as ingredienten', 'allergens.name as allergenen',)
+        ->get();
+    return response()->json($ingredients);
+ });
  
  Route::get('/allergens', function () {
     return DB::table('allergens')->get();
