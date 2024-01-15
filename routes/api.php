@@ -17,11 +17,26 @@ use App\Models\User;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
 
 Route::get('/stockitems', function () {
     return DB::table('stockitems')->get();
  });
  
+ Route::get('/users', function () {
+    return DB::table('users')->get();
+ });
+
+ Route::get('/ingredients', function () {
+    return DB::table('ingredients')->get();
+ });
+ 
+ Route::get('/allergens', function () {
+    return DB::table('allergens')->get();
+ });
+
+ Route::get('/suppliers', function () {
+    return DB::table('suppliers')->get();
+ });
