@@ -21,9 +21,33 @@ use App\Models\User;
 //     return $request->user();
 // });
 
+// TRIED MAKING ROUTE TO RETURN ALL STOCK ITEMS
+// Route::get('/stockitems', function (Request $request) {
+//    $stockitems = DB::table('stockitems')
+//       ->join('ingredients', 'ingredient_id', '=', 'stockitems.ingredient_id')
+//       ->join('suppliers', 'suppliers.id', '=', 'stockitems.supplier_id')
+//       ->select('stockitems.id', 'stockitems.name', 'stockitems.quantity', 'ingredients.name as ingredients', 'stockitems.expirationdate', 'stockitems.supplier_id', 'stockitems.isfood', 'suppliers.name as supplier_name')
+//       ->get();
+//    return response()->json($stockitems);
+// });
+
 Route::get('/stockitems', function () {
-    return DB::table('stockitems')->get();
- });
+   $results = DB::table('stockitems')
+       ->leftJoin('suppliers', 'suppliers.id', '=', 'stockitems.supplier_id')
+       ->leftJoin('ingredients', 'ingredients.id', '=', 'stockitems.ingredient_id')
+       ->select([
+           'stockitems.id',
+           'stockitems.quantity',
+           'stockitems.expirationdate',
+           'stockitems.name',
+           'suppliers.name as supplier',
+           'ingredients.name as ingredient'
+       ])
+       ->get();
+
+   return response()->json($results);
+});
+
  
  Route::get('/users', function () {
     return DB::table('users')->get();
