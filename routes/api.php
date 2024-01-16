@@ -21,14 +21,27 @@ use App\Models\User;
 //     return $request->user();
 // });
 
+// Stock
 Route::get('/stockitems', function () {
     return DB::table('stockitems')->get();
  });
  
+//  Users
  Route::get('/users', function () {
     return DB::table('users')->get();
  });
 
+ Route::post('/users', function (Request $request) {
+   $name = $request->name;
+   $email = $request->email;
+   $password = $request->password;
+ 
+   DB::insert('INSERT INTO users (name, email, password) VALUES (?, ?, ?)', [$name, $email, $password]);
+   return response()->json(['message' => 'registered successfully'], 201);
+ });
+
+
+// Ingredients
 //  Route::get('/ingredients', function () {
 //     return DB::table('ingredients')->get();
 //  });
@@ -41,11 +54,13 @@ Route::get('/ingredients', function (Request $request) {
 
    return response()->json($ingredients);
 });
- 
+
+// Allergens
  Route::get('/allergens', function () {
     return DB::table('allergens')->get();
  });
 
+// Suppliers
  Route::get('/suppliers', function () {
     return DB::table('suppliers')->get();
  });
