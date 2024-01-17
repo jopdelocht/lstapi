@@ -124,3 +124,12 @@ Route::get('/ingredients', function (Request $request) {
  Route::get('/suppliers', function () {
     return DB::table('suppliers')->get();
  });
+
+ // Ingredients
+ Route::post('/ingredients', function (Request $request) {
+  $name = $request->name;
+  $allergen_id = $request->allergen_id;
+
+  DB::insert('INSERT INTO ingredients (name, allergen_id) VALUES (?, ?)', [$name, $allergen_id]);
+  return response()->json(['message' => 'added successfully'], 201);
+});
