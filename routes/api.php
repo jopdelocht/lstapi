@@ -84,13 +84,23 @@ Route::post('/stockitems', function (Request $request) {
 });
  // token routes
  Route::post('/tokens/create', function (Request $request) {
-    $user = User::find($user->id);
-    //return $user;
-    $token = $user->createToken('mynewtoken');
-    return ['token' => $token->plainTextToken];
-    // post the plaintexttoken to the user in the database
-    $user:: where('id', $user->id)->update(['remember_token' => $token->plainTextToken]);
- });
+  // Assuming the user ID is sent with the request
+  // and you are authenticated to get the user ID from the request
+  $userId = $request->user()->id;
+  $user = User::find($userId);
+
+  if ($user) {
+      $token = $user->createToken('mynewtoken');
+      // Update the user's remember_token in the database
+      $user->update(['remember_token' => $token->plainTextToken]);
+      
+      // Return the token
+      return ['token' => $token->plainTextToken];
+  }
+
+  // Handle the case where the user is not found
+  return response()->json(['error' => 'User not found'], 404);
+});
 
 
 // Ingredients
@@ -114,3 +124,12 @@ Route::get('/ingredients', function (Request $request) {
  Route::get('/suppliers', function () {
     return DB::table('suppliers')->get();
  });
+
+ // Ingredients
+ Route::post('/ingredients', function (Request $request) {
+  $name = $request->name;
+  $allergen_id = $request->allergen_id;
+
+  DB::insert('INSERT INTO ingredients (name, allergen_id) VALUES (?, ?)', [$name, $allergen_id]);
+  return response()->json(['message' => 'added successfully'], 201);
+});
