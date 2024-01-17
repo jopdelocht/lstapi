@@ -61,7 +61,7 @@ Route::post('/stockitems', function (Request $request) {
 //  POST-method for inserting new registered user
  Route::post('/users', function (Request $request) {
   $validatedData = $request->validate([
-      'name' => 'required|max:255',
+      'name' => 'required|max:255|unique:users',
       'email' => 'required|email|unique:users',
       'password' => 'required',
   ]);
