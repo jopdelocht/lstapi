@@ -21,33 +21,45 @@ use App\Models\User;
 //     return $request->user();
 // });
 
-// TRIED MAKING ROUTE TO RETURN ALL STOCK ITEMS
-// Route::get('/stockitems', function (Request $request) {
-//    $stockitems = DB::table('stockitems')
-//       ->join('ingredients', 'ingredient_id', '=', 'stockitems.ingredient_id')
-//       ->join('suppliers', 'suppliers.id', '=', 'stockitems.supplier_id')
-//       ->select('stockitems.id', 'stockitems.name', 'stockitems.quantity', 'ingredients.name as ingredients', 'stockitems.expirationdate', 'stockitems.supplier_id', 'stockitems.isfood', 'suppliers.name as supplier_name')
-//       ->get();
-//    return response()->json($stockitems);
-// });
-
+//Stockitems
 Route::get('/stockitems', function () {
    $results = DB::table('stockitems')
        ->leftJoin('suppliers', 'suppliers.id', '=', 'stockitems.supplier_id')
        ->leftJoin('ingredients', 'ingredients.id', '=', 'stockitems.ingredient_id')
        ->select([
            'stockitems.id',
+           'stockitems.name',
            'stockitems.quantity',
            'stockitems.expirationdate',
-           'stockitems.name',
+           'stockitems.isfood',
            'suppliers.name as supplier',
            'ingredients.name as ingredient'
        ])
        ->get();
-
    return response()->json($results);
 });
 
+Route::post('/stockitems', function (Request $request) {
+   $name = $request->name;
+   $quantity = $request->quantity;
+   $expirationdate = $request->expirationdate;
+   $isfood = $request->isfood;
+   $supplier_id = $request->supplier_id;
+   $ingredient_id = $request->ingredient_id;
+
+    DB::insert('INSERT INTO stockitems (name, quantity, expirationdate, isfood, supplier_id, ingredient_id) 
+    VALUES (?, ?, ?, ?, ?, ?)', [$name, $quantity, $expirationdate, $isfood, $supplier_id, $ingredient_id]);
+   return response()->json(['message' => 'Stockitem created successfully'], 201);
+ });
+
+// {
+//    "name": "Rond taartdeeg",
+//    "quantity": 250,
+//    "expirationdate": "10/10/2030",
+//    "isfood": 1,
+//    "supplier_id": "1",
+//    "ingredient_id": "1"
+// }
  
 //  Users
  Route::get('/users', function () {
