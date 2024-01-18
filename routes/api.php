@@ -22,22 +22,39 @@ use App\Models\User;
 // });
 
 //Stockitems
+// Route::get('/stockitems', function () {
+//    $results = DB::table('stockitems')
+//        ->leftJoin('suppliers', 'suppliers.id', '=', 'stockitems.supplier_id')
+//        ->leftJoin('ingredients', 'ingredients.id', '=', 'stockitems.ingredient_id')
+//        ->select([
+//            'stockitems.id',
+//            'stockitems.name',
+//            'stockitems.quantity',
+//            'stockitems.expirationdate',
+//            'stockitems.isfood',
+//            'suppliers.name as supplier',
+//            'ingredients.name as ingredient'
+//        ])
+//        ->get();
+//    return response()->json($results);
+// });
+
 Route::get('/stockitems', function () {
-   $results = DB::table('stockitems')
-       ->leftJoin('suppliers', 'suppliers.id', '=', 'stockitems.supplier_id')
-       ->leftJoin('ingredients', 'ingredients.id', '=', 'stockitems.ingredient_id')
-       ->select([
-           'stockitems.id',
-           'stockitems.name',
-           'stockitems.quantity',
-           'stockitems.expirationdate',
-           'stockitems.isfood',
-           'suppliers.name as supplier',
-           'ingredients.name as ingredient'
-       ])
-       ->get();
-   return response()->json($results);
+  $results = DB::table('stockitems')
+      ->select([
+          'stockitems.id',
+          'products.name AS product',
+          'stockitems.quantity',
+          'stockitems.expirationdate',
+          'suppliers.name AS supplier'
+      ])
+      ->leftJoin('products', 'products.id', '=', 'stockitems.product_id')
+      ->leftJoin('suppliers', 'suppliers.id', '=', 'stockitems.supplier_id')
+      ->get();
+
+      return response()->json($results);
 });
+
 
 Route::post('/stockitems', function (Request $request) {
    $name = $request->name;
