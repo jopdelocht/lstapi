@@ -22,23 +22,6 @@ use App\Models\User;
 // });
 
 //Stockitems
-// Route::get('/stockitems', function () {
-//    $results = DB::table('stockitems')
-//        ->leftJoin('suppliers', 'suppliers.id', '=', 'stockitems.supplier_id')
-//        ->leftJoin('ingredients', 'ingredients.id', '=', 'stockitems.ingredient_id')
-//        ->select([
-//            'stockitems.id',
-//            'stockitems.name',
-//            'stockitems.quantity',
-//            'stockitems.expirationdate',
-//            'stockitems.isfood',
-//            'suppliers.name as supplier',
-//            'ingredients.name as ingredient'
-//        ])
-//        ->get();
-//    return response()->json($results);
-// });
-
 Route::get('/stockitems', function () {
   $results = DB::table('stockitems')
       ->select([
@@ -55,7 +38,6 @@ Route::get('/stockitems', function () {
       return response()->json($results);
 });
 
-
 Route::post('/stockitems', function (Request $request) {
    $name = $request->name;
    $quantity = $request->quantity;
@@ -68,6 +50,18 @@ Route::post('/stockitems', function (Request $request) {
     VALUES (?, ?, ?, ?, ?, ?)', [$name, $quantity, $expirationdate, $isfood, $supplier_id, $ingredient_id]);
    return response()->json(['message' => 'Stockitem created successfully'], 201);
  });
+
+// Products
+ Route::get('/products', function () {
+  $results = DB::table('products')
+      ->select('products.id', 'products.name AS product', 'ingredients.name AS ingredient', 'allergens.name AS allergen', 'types.name AS type')
+      ->leftJoin('ingredients', 'ingredients.id', '=', 'products.ingredient_id')
+      ->leftJoin('allergens', 'allergens.id', '=', 'products.allergen_id')
+      ->leftJoin('types', 'types.id', '=', 'products.type_id')
+      ->get();
+
+  return response()->json($results);
+});
 
 
  Route::get('/users', function () {
