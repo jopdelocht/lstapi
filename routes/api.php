@@ -125,11 +125,35 @@ Route::get('/ingredients', function (Request $request) {
     return DB::table('suppliers')->get();
  });
 
- // Ingredients
+
  Route::post('/ingredients', function (Request $request) {
   $name = $request->name;
-  $allergen_id = $request->allergen_id;
+  $allergen_ids = $request->allergens; // Expecting an array of allergen IDs
 
-  DB::insert('INSERT INTO ingredients (name, allergen_id) VALUES (?, ?)', [$name, $allergen_id]);
-  return response()->json(['message' => 'added successfully'], 201);
+  // Insert the ingredient and get its ID
+  $ingredient_id = DB::table('ingredients')->insertGetId(['name' => $name]);
+
+  // Insert allergen relationships in pivot table (assuming the table is named ingredient_allergen)
+  foreach ($allergen_ids as $allergen_id) {
+      DB::table('ingredient_allergen')->insert([
+          'ingredient_id' => $ingredient_id,
+          'allergen_id' => $allergen_id
+      ]);
+  }
+
+  return response()->json(['message' => 'Ingredient added successfully'], 201);
 });
+
+
+
+
+
+
+//  // Ingredients
+//  Route::post('/ingredients', function (Request $request) {
+//   $name = $request->name;
+//   $allergen_id = $request->allergen_id;
+
+//   DB::insert('INSERT INTO ingredients (name, allergen_id) VALUES (?, ?)', [$name, $allergen_id]);
+//   return response()->json(['message' => 'added successfully'], 201);
+// });
