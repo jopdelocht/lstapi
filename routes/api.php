@@ -23,20 +23,19 @@ use App\Models\User;
 
 //Stockitems
 Route::get('/stockitems', function () {
-   $results = DB::table('stockitems')
-       ->leftJoin('suppliers', 'suppliers.id', '=', 'stockitems.supplier_id')
-       ->leftJoin('ingredients', 'ingredients.id', '=', 'stockitems.ingredient_id')
-       ->select([
-           'stockitems.id',
-           'stockitems.name',
-           'stockitems.quantity',
-           'stockitems.expirationdate',
-           'stockitems.isfood',
-           'suppliers.name as supplier',
-           'ingredients.name as ingredient'
-       ])
-       ->get();
-   return response()->json($results);
+  $results = DB::table('stockitems')
+      ->select([
+          'stockitems.id',
+          'products.name AS product',
+          'stockitems.quantity',
+          'stockitems.expirationdate',
+          'suppliers.name AS supplier'
+      ])
+      ->leftJoin('products', 'products.id', '=', 'stockitems.product_id')
+      ->leftJoin('suppliers', 'suppliers.id', '=', 'stockitems.supplier_id')
+      ->get();
+
+      return response()->json($results);
 });
 
 Route::post('/stockitems', function (Request $request) {
@@ -52,6 +51,18 @@ Route::post('/stockitems', function (Request $request) {
    return response()->json(['message' => 'Stockitem created successfully'], 201);
  });
 
+// Products
+ Route::get('/products', function () {
+  $results = DB::table('products')
+      ->select('products.id', 'products.name AS product', 'ingredients.name AS ingredient', 'allergens.name AS allergen', 'types.name AS type')
+      ->leftJoin('ingredients', 'ingredients.id', '=', 'products.ingredient_id')
+      ->leftJoin('allergens', 'allergens.id', '=', 'products.allergen_id')
+      ->leftJoin('types', 'types.id', '=', 'products.type_id')
+      ->get();
+
+  return response()->json($results);
+});
+
 
  Route::get('/users', function () {
    $users = DB::table('users')->get();
@@ -61,7 +72,7 @@ Route::post('/stockitems', function (Request $request) {
 //  POST-method for inserting new registered user
  Route::post('/users', function (Request $request) {
   $validatedData = $request->validate([
-      'name' => 'required|max:255',
+      'name' => 'required|max:255|unique:users',
       'email' => 'required|email|unique:users',
       'password' => 'required',
   ]);
