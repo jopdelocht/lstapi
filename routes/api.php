@@ -54,15 +54,14 @@ Route::post('/stockitems', function (Request $request) {
 // Products
  Route::get('/products', function () {
   $results = DB::table('products')
-      ->select('products.id', 'products.name AS product', 'ingredients.name AS ingredient', 'allergens.name AS allergen', 'types.name AS type')
+      ->select('products.id', 'products.name AS product', 'ingredients.name AS ingredient',  'types.name AS type')
       ->leftJoin('ingredients', 'ingredients.id', '=', 'products.ingredient_id')
-      ->leftJoin('allergens', 'allergens.id', '=', 'products.allergen_id')
+      // ->leftJoin('allergens', 'allergens.id', '=', 'products.allergen_id')
       ->leftJoin('types', 'types.id', '=', 'products.type_id')
       ->get();
 
   return response()->json($results);
 });
-
 
  Route::get('/users', function () {
    $users = DB::table('users')->get();
