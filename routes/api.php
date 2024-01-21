@@ -51,17 +51,36 @@ Route::post('/stockitems', function (Request $request) {
    return response()->json(['message' => 'Stockitem created successfully'], 201);
  });
 
+
+
+
+
+
 // Products
  Route::get('/products', function () {
-  $results = DB::table('products')
-      ->select('products.id', 'products.name AS product', 'ingredients.name AS ingredient',  'types.name AS type')
-      ->leftJoin('ingredients', 'ingredients.id', '=', 'products.ingredient_id')
+  $products = DB::table('products')
+      ->select('products.id', 'products.name AS productname', 'ingredients.name AS ingredientname',  'types.name AS type')
+      ->leftJoin('ingredients', 'ingredients.id', '=', 'products.ingredients')
       // ->leftJoin('allergens', 'allergens.id', '=', 'products.allergen_id')
       ->leftJoin('types', 'types.id', '=', 'products.type_id')
+      ->orderBy('productname', 'ASC')
       ->get();
 
-  return response()->json($results);
+  return response()->json($products);
 });
+
+
+//POST-method for inserting new products
+Route::post('/products', function (Request $request) {
+  $name = $request->name;
+  $ingredients = $request->ingredients;
+  $isfood = $request->isfood;
+  $type_id = $request->type_id;
+
+  DB::insert('INSERT INTO products (name, ingredients, isfood, type_id) VALUES (?, ?, ?, ?)', [$name, $ingredients, $isfood, $type_id]);
+  return response()->json(['message' => 'added successfully'], 201);
+});
+
 
  Route::get('/users', function () {
    $users = DB::table('users')->get();
@@ -113,19 +132,26 @@ Route::post('/stockitems', function (Request $request) {
 });
 
 
-// Ingredients
-//  Route::get('/ingredients', function () {
-//     return DB::table('ingredients')->get();
-//  });
 
+ // Ingredients
 Route::get('/ingredients', function (Request $request) {
-    $ingredients = DB::table('ingredients')
-        ->join('allergens', 'allergens.id', '=', 'ingredients.allergen_id')
-        ->select('ingredients.id', 'ingredients.name as ingredienten', 'allergens.name as allergenen',)
-        ->get();
-    return response()->json($ingredients);
- });
+  $ingredients = DB::table('ingredients')
+      ->get();
+  return response()->json($ingredients);
+});
+
+// POST-method for inserting new ingredients
+ Route::post('/ingredients', function (Request $request) {
+  $name = $request->name;
+  $allergens = $request->allergens;
+
+  DB::insert('INSERT INTO ingredients (name, allergens) VALUES (?, ?)', [$name, $allergens]);
+  return response()->json(['message' => 'added successfully'], 201);
+});
  
+
+
+// Allergens 
  Route::get('/allergens', function () {
     return DB::table('allergens')->get();
  });
@@ -135,11 +161,3 @@ Route::get('/ingredients', function (Request $request) {
     return DB::table('suppliers')->get();
  });
 
- // Ingredients
- Route::post('/ingredients', function (Request $request) {
-  $name = $request->name;
-  $allergen_id = $request->allergen_id;
-
-  DB::insert('INSERT INTO ingredients (name, allergen_id) VALUES (?, ?)', [$name, $allergen_id]);
-  return response()->json(['message' => 'added successfully'], 201);
-});
