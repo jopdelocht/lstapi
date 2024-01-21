@@ -39,15 +39,15 @@ Route::get('/stockitems', function () {
 });
 
 Route::post('/stockitems', function (Request $request) {
-   $name = $request->name;
+   $product_id = $request->product_id;
    $quantity = $request->quantity;
    $expirationdate = $request->expirationdate;
-   $isfood = $request->isfood;
+  //  $isfood = $request->isfood;
    $supplier_id = $request->supplier_id;
-   $ingredient_id = $request->ingredient_id;
+  //  $ingredient_id = $request->ingredient_id;
 
-    DB::insert('INSERT INTO stockitems (name, quantity, expirationdate, isfood, supplier_id, ingredient_id) 
-    VALUES (?, ?, ?, ?, ?, ?)', [$name, $quantity, $expirationdate, $isfood, $supplier_id, $ingredient_id]);
+    DB::insert('INSERT INTO stockitems (product_id, quantity, expirationdate, supplier_id) 
+    VALUES (?, ?, ?, ?)', [$product_id, $quantity, $expirationdate, $supplier_id]);
    return response()->json(['message' => 'Stockitem created successfully'], 201);
  });
 
