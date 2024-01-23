@@ -161,4 +161,11 @@ Route::get('/ingredients', function (Request $request) {
  Route::get('/suppliers', function () {
     return DB::table('suppliers')->get();
  });
+ 
+// POST-method for inserting new suppliers
+ Route::post('/suppliers', function (Request $request) {
+  $name = $request->name;
 
+  DB::insert('INSERT INTO suppliers (name) VALUES (?)', [$name]);
+  return response()->json(['message' => 'added successfully'], 201);
+ });
