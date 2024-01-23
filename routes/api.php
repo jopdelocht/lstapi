@@ -51,10 +51,11 @@ Route::post('/stockitems', function (Request $request) {
    return response()->json(['message' => 'Stockitem created successfully'], 201);
  });
 
-
-
-
-
+// Route for the stockitems delete
+Route::delete('/stockitems/{id}', function ($id) {
+  DB::delete('DELETE FROM stockitems WHERE id = ?', [$id]);
+  return response()->json(['message' => 'Stockitem deleted successfully'], 200);
+});
 
 // Products
  Route::get('/products', function () {
