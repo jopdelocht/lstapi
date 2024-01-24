@@ -136,10 +136,13 @@ Route::post('/products', function (Request $request) {
  // Ingredients
  Route::get('/ingredients', function (Request $request) {
   $result = DB::select("
-      SELECT ingredients.name AS Ingredient, GROUP_CONCAT(allergens.name SEPARATOR ', ') AS Allergen
-      FROM ingredients
-      JOIN allergens ON CONCAT(',', ingredients.allergens, ',') LIKE CONCAT('%,', allergens.id, ',%')
-      GROUP BY ingredients.name
+  SELECT 
+    ingredients.id AS Ingredient_id,
+    ingredients.name AS Ingredient, 
+    GROUP_CONCAT(allergens.name SEPARATOR ', ') AS Allergen
+FROM ingredients
+JOIN allergens ON CONCAT(',', ingredients.allergens, ',') LIKE CONCAT('%,', allergens.id, ',%')
+GROUP BY ingredients.id, ingredients.name;
   ");
   return response()->json($result, 200);
 });
@@ -205,3 +208,25 @@ function sanitizeInput(string $input): string
   DB::insert('INSERT INTO suppliers (name) VALUES (?)', [$name]);
   return response()->json(['message' => 'added successfully'], 201);
  });
+
+ //ORDERS
+ //GET for recipe_product
+ Route::get('/recipe_product_all', function () {
+  $results = DB::select("SELECT
+  recipe_product.id,
+  recipes.name AS recipename,
+  recipe_product.basevalue,
+  products.id,
+  products.name AS productname,
+  recipe_product.quantity,
+  types.name AS measurement,
+  products.ingredients
+FROM recipe_product
+LEFT JOIN products ON products.id = recipe_product.product_id
+LEFT JOIN recipes ON recipes.id = recipe_product.recipe_id
+LEFT JOIN types ON types.id = recipe_product.type_id
+LEFT JOIN ingredients ON products.id = ingredients
+ORDER BY recipe_product.id ASC");
+
+  return response()->json($results);
+});
