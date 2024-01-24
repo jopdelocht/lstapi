@@ -133,21 +133,47 @@ Route::post('/products', function (Request $request) {
 });
 
 
-
  // Ingredients
-Route::get('/ingredients', function (Request $request) {
-  $ingredients = DB::table('ingredients')
-      ->get();
-  return response()->json($ingredients);
+ Route::get('/ingredients', function (Request $request) {
+  $result = DB::select("
+      SELECT ingredients.name AS Ingredient, GROUP_CONCAT(allergens.name SEPARATOR ', ') AS Allergen
+      FROM ingredients
+      JOIN allergens ON CONCAT(',', ingredients.allergens, ',') LIKE CONCAT('%,', allergens.id, ',%')
+      GROUP BY ingredients.name
+  ");
+  return response()->json($result, 200);
 });
 
 // POST-method for inserting new ingredients
  Route::post('/ingredients', function (Request $request) {
-  $name = $request->name;
-  $allergens = $request->allergens;
+
+  // Check if name is empty or not
+  if (empty($request->name)) {
+    return response()->json([
+      'message' => 'Ingredient name cannot be empty',
+      'success' => false
+    ], 400);
+  }
+
+  $name = sanitizeInput($request->name);
+
+  if (empty($name)) {
+    return response()->json([
+      'message' => 'Ingredient name cannot be empty',
+      'success' => false
+    ], 400);
+  }
+
+  $allergens = '';
+  if (!empty($request->name)) {
+    $allergens = sanitizeInput($request->allergens);
+  }
 
   DB::insert('INSERT INTO ingredients (name, allergens) VALUES (?, ?)', [$name, $allergens]);
-  return response()->json(['message' => 'added successfully'], 201);
+  return response()->json([
+    'message' => 'Ingredient added successfully',
+    'success' => true
+  ], 201);
 });
  
 
@@ -166,6 +192,16 @@ Route::get('/ingredients', function (Request $request) {
  Route::post('/suppliers', function (Request $request) {
   $name = $request->name;
 
+function sanitizeInput(string $input): string
+ {
+  $input = trim($input);
+  $input = stripslashes($input);
+  $input = htmlspecialchars($input);
+  $input = strtolower($input);
+  $input = ucfirst($input);
+  return $input;
+}
+   
   DB::insert('INSERT INTO suppliers (name) VALUES (?)', [$name]);
   return response()->json(['message' => 'added successfully'], 201);
  });
