@@ -51,6 +51,11 @@ Route::post('/stockitems', function (Request $request) {
    return response()->json(['message' => 'Stockitem created successfully'], 201);
  });
 
+// Route for the stockitems delete
+Route::delete('/stockitems/{id}', function ($id) {
+  DB::delete('DELETE FROM stockitems WHERE id = ?', [$id]);
+  return response()->json(['message' => 'Stockitem deleted successfully'], 200);
+});
 
 // Products
  Route::get('/products', function () {
@@ -182,6 +187,10 @@ Route::post('/products', function (Request $request) {
  Route::get('/suppliers', function () {
     return DB::table('suppliers')->get();
  });
+ 
+// POST-method for inserting new suppliers
+ Route::post('/suppliers', function (Request $request) {
+  $name = $request->name;
 
 function sanitizeInput(string $input): string
  {
@@ -192,3 +201,7 @@ function sanitizeInput(string $input): string
   $input = ucfirst($input);
   return $input;
 }
+   
+  DB::insert('INSERT INTO suppliers (name) VALUES (?)', [$name]);
+  return response()->json(['message' => 'added successfully'], 201);
+ });
