@@ -57,6 +57,12 @@ Route::delete('/stockitems/{id}', function ($id) {
   return response()->json(['message' => 'Stockitem deleted successfully'], 200);
 });
 
+// Route for the stockitems update
+Route::patch ('/stockitems/{id}', function ($id, Request $request) {
+  DB::update('UPDATE stockitems SET quantity = ?, expirationdate = ?, supplier_id = ? WHERE id = ?', [$request->quantity, $request->expirationdate, $request->supplier_id, $id]);
+  return response()->json(['message' => 'Stockitem updated successfully'], 200);
+});
+
 // Products
  Route::get('/products', function () {
   $products = DB::table('products')
