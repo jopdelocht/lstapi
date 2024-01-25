@@ -209,14 +209,14 @@ function sanitizeInput(string $input): string
   return response()->json(['message' => 'added successfully'], 201);
  });
 
- //ORDERS
+ //RECIPE_PRODUCT
  //GET for recipe_product
  Route::get('/recipe_product_all', function () {
   $results = DB::select("SELECT
   recipe_product.id,
   recipes.name AS recipename,
   recipe_product.basevalue,
-  products.id,
+  products.id AS product_id,
   products.name AS productname,
   recipe_product.quantity,
   types.name AS measurement,
@@ -229,4 +229,47 @@ LEFT JOIN ingredients ON products.id = ingredients
 ORDER BY recipe_product.id ASC");
 
   return response()->json($results);
+});
+
+
+//ORDERS
+//get
+Route::get('/orders', function () {
+  return DB::select("
+  SELECT
+  orders.id AS orderid,
+  clients.id AS clientid,
+  clients.lastname AS clientname,
+  orders.totalquantity,
+  orders.recipe,
+  orders.productquantity,
+  orders.type,
+  orders.product,
+  orders.ingredient,
+  orders.allergen
+  FROM orders
+  LEFT JOIN clients ON clients.id = orders.client_id
+  ");
+});
+
+
+//post
+Route::post('/orders', function (Request $request) {
+  $client_id = $request -> client_id;
+  $totalquantity = $request -> totalquantity;
+  $recipe = $request -> recipe;
+  $productquantity = $request -> productquantity;
+  $product = $request -> product;
+  $type = $request -> type;
+  $ingredient = $request -> ingredient;
+  $allergen = $request -> allergen;
+
+  DB::insert('INSERT INTO orders (client_id, totalquantity, recipe, productquantity, product, type, ingredient, allergen)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [$client_id, $totalquantity, $recipe, $productquantity, $product, $type, $ingredient, $allergen]);
+  return response()->json(['message' => 'Order added successfully'], 201);
+});
+
+// Clients
+Route::get('/clients', function () {
+  return DB::table('clients')->get();
 });
