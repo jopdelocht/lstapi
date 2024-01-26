@@ -418,3 +418,28 @@ Route::post('/fullfill_line_item', function (Request $request) {
   }
 
 });
+
+// route for the orders delete
+Route::delete('/orders/{id}', function ($id) {
+  DB::delete('DELETE FROM orders WHERE id = ?', [$id]);
+  return response()->json(['message' => 'Order deleted successfully'], 200);
+});
+// route for orders edit
+Route::patch('/orders/{id}', function ($id, Request $request) {
+    // Retrieve the order from the database
+    $order = DB::table('orders')->where('id', $id)->first();
+
+    // Update the order fields with the new values from the request
+    $order->totalquantity = $request->totalquantity;
+    $order->recipe = $request->recipe;
+    $order->productquantity = $request->productquantity;
+    $order->product = $request->product;
+    $order->type = $request->type;
+    $order->ingredient = $request->ingredient;
+    $order->allergen = $request->allergen;
+
+    // Save the updated order back to the database
+    DB::table('orders')->where('id', $id)->update((array) $order);
+
+    return response()->json(['message' => 'Order updated successfully'], 200);
+});
