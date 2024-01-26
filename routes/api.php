@@ -63,18 +63,37 @@ Route::patch ('/stockitems/{id}', function ($id, Request $request) {
   return response()->json(['message' => 'Stockitem updated successfully'], 200);
 });
 
-// Products
- Route::get('/products', function () {
-  $products = DB::table('products')
-      ->select('products.id', 'products.name AS productname', 'ingredients.name AS ingredientname',  'types.name AS type')
-      ->leftJoin('ingredients', 'ingredients.id', '=', 'products.ingredients')
-      // ->leftJoin('allergens', 'allergens.id', '=', 'products.allergen_id')
-      ->leftJoin('types', 'types.id', '=', 'products.type_id')
-      ->orderBy('productname', 'ASC')
-      ->get();
+// // Products
+//  Route::get('/products', function () {
+//   $products = DB::table('products')
+//       ->select('products.id', 'products.name AS productname', 'ingredients.name AS ingredientname',  'types.name AS type')
+//       ->leftJoin('ingredients', 'ingredients.id', '=', 'products.ingredients')
+//       // ->leftJoin('allergens', 'allergens.id', '=', 'products.allergen_id')
+//       ->leftJoin('types', 'types.id', '=', 'products.type_id')
+//       ->orderBy('productname', 'ASC')
+//       ->get();
 
-  return response()->json($products);
+//   return response()->json($products);
+// });
+
+ // Products
+ Route::get('/products', function (Request $request) {
+  $result = DB::select("
+  SELECT 
+  products.id AS Product_id,
+  products.name AS Product, 
+  `types`.`name` AS Type,
+  products.isfood AS IsFood,
+  GROUP_CONCAT(ingredients.name SEPARATOR ', ') AS Ingredient
+FROM products
+JOIN ingredients ON CONCAT(',', products.ingredients, ',') LIKE CONCAT('%,', ingredients.id, ',%')
+JOIN `types` ON `types`.id = products.type_id
+GROUP BY products.id, products.name;
+  ");
+  return response()->json($result, 200);
 });
+
+
 
 
 //POST-method for inserting new products
@@ -153,7 +172,6 @@ GROUP BY ingredients.id, ingredients.name;
   return response()->json($result, 200);
 });
 
-// POST-method for inserting new ingredients
 // POST-method for inserting new ingredients
 Route::post('/ingredients', function (Request $request) {
   DB::insert('INSERT INTO ingredients (name, allergens) VALUES (?, ?)', [$request->name, $request->allergens]);
