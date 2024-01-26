@@ -163,6 +163,19 @@ Route::post('/ingredients', function (Request $request) {
   ], 201);
 });
 
+//  route for the ingredients delete
+Route::delete('/ingredients/{id}', function ($id) {
+  DB::delete('DELETE FROM ingredients WHERE id = ?', [$id]);
+  return response()->json(['message' => 'Ingredient deleted successfully'], 200);
+});
+
+// route for the ingredients update
+Route::patch ('/ingredients/{id}', function ($id, Request $request) {
+  DB::update('UPDATE ingredients SET name = ?, allergens = ? WHERE id = ?', [$request->name, $request->allergens, $id]);
+  return response()->json(['message' => 'Ingredient updated successfully'], 200);
+});
+
+
 
 
 //  Route::post('/ingredients', function (Request $request) {
@@ -225,6 +238,18 @@ function sanitizeInput(string $input): string
   DB::insert('INSERT INTO suppliers (name) VALUES (?)', [$name]);
   return response()->json(['message' => 'added successfully'], 201);
  });
+
+ //  Route for the suppliers delete
+ Route::delete('/suppliers/{id}', function ($id) {
+  DB::delete('DELETE FROM suppliers WHERE id = ?', [$id]);
+  return response()->json(['message' => 'Supplier deleted successfully'], 200);
+});
+
+//  Route for the suppliers update
+ Route::patch ('/suppliers/{id}', function ($id, Request $request) {
+  DB::update('UPDATE suppliers SET name = ? WHERE id = ?', [$request->name, $id]);
+  return response()->json(['message' => 'Supplier updated successfully'], 200);
+});
 
  //RECIPE_PRODUCT
  //GET for recipe_product
