@@ -59,7 +59,7 @@ Route::delete('/stockitems/{id}', function ($id) {
 
 // Route for the stockitems update
 Route::patch ('/stockitems/{id}', function ($id, Request $request) {
-  DB::update('UPDATE stockitems SET quantity = ?, expirationdate = ?, supplier_id = ? WHERE id = ?', [$request->quantity, $request->expirationdate, $request->supplier_id, $id]);
+  DB::update('UPDATE stockitems SET product_id = ?, quantity = ?, expirationdate = ?, supplier_id = ? WHERE id = ?', [$request ->product_id, $request->quantity, $request->expirationdate, $request->supplier_id, $id]);
   return response()->json(['message' => 'Stockitem updated successfully'], 200);
 });
 
@@ -84,11 +84,11 @@ Route::patch ('/stockitems/{id}', function ($id, Request $request) {
   products.name AS Product, 
   `types`.`name` AS Type,
   products.isfood AS IsFood,
-  GROUP_CONCAT(ingredients.name SEPARATOR ', ') AS Ingredient
-FROM products
-JOIN ingredients ON CONCAT(',', products.ingredients, ',') LIKE CONCAT('%,', ingredients.id, ',%')
-JOIN `types` ON `types`.id = products.type_id
-GROUP BY products.id, products.name;
+  GROUP_CONCAT(IFNULL(ingredients.name, '') SEPARATOR ', ') AS Ingredient
+  FROM products
+  LEFT JOIN ingredients ON CONCAT(',', products.ingredients, ',') LIKE CONCAT('%,', ingredients.id, ',%')
+  JOIN `types` ON `types`.id = products.type_id
+  GROUP BY products.id, products.name;
   ");
   return response()->json($result, 200);
 });
@@ -107,6 +107,22 @@ Route::post('/products', function (Request $request) {
   return response()->json(['message' => 'added successfully'], 201);
 });
 
+// PATCH-method for updating products
+Route::patch('/products/{id}', function (Request $request, $id) {
+    $name = $request->name;
+    $ingredients = $request->ingredients;
+    $isfood = $request->isfood;
+    $type_id = $request->type_id;
+
+    DB::update('UPDATE products SET name = ?, ingredients = ?, isfood = ?, type_id = ? WHERE id = ?', [$name, $ingredients, $isfood, $type_id, $id]);
+    return response()->json(['message' => 'Product updated successfully'], 200);
+});
+
+// DELETE-method for deleting products
+Route::delete('/products/{id}', function ($id) {
+  DB::delete('DELETE FROM products WHERE id = ?', [$id]);
+  return response()->json(['message' => 'Product deleted successfully'], 200);
+});
 
  Route::get('/users', function () {
    $users = DB::table('users')->get();
@@ -162,12 +178,12 @@ Route::post('/products', function (Request $request) {
  Route::get('/ingredients', function (Request $request) {
   $result = DB::select("
   SELECT 
-    ingredients.id AS Ingredient_id,
-    ingredients.name AS Ingredient, 
-    GROUP_CONCAT(allergens.name SEPARATOR ', ') AS Allergen
-FROM ingredients
-JOIN allergens ON CONCAT(',', ingredients.allergens, ',') LIKE CONCAT('%,', allergens.id, ',%')
-GROUP BY ingredients.id, ingredients.name;
+      ingredients.id AS Ingredient_id,
+      ingredients.name AS Ingredient, 
+      GROUP_CONCAT(IFNULL(allergens.name, '') SEPARATOR ', ') AS Allergen
+  FROM ingredients
+  LEFT JOIN allergens ON CONCAT(',', ingredients.allergens, ',') LIKE CONCAT('%,', allergens.id, ',%')
+  GROUP BY ingredients.id, ingredients.name;
   ");
   return response()->json($result, 200);
 });
