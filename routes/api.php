@@ -154,36 +154,47 @@ GROUP BY ingredients.id, ingredients.name;
 });
 
 // POST-method for inserting new ingredients
- Route::post('/ingredients', function (Request $request) {
-
-  // Check if name is empty or not
-  if (empty($request->name)) {
-    return response()->json([
-      'message' => 'Ingredient name cannot be empty',
-      'success' => false
-    ], 400);
-  }
-
-  $name = sanitizeInput($request->name);
-
-  if (empty($name)) {
-    return response()->json([
-      'message' => 'Ingredient name cannot be empty',
-      'success' => false
-    ], 400);
-  }
-
-  $allergens = '';
-  if (!empty($request->name)) {
-    $allergens = sanitizeInput($request->allergens);
-  }
-
-  DB::insert('INSERT INTO ingredients (name, allergens) VALUES (?, ?)', [$name, $allergens]);
+// POST-method for inserting new ingredients
+Route::post('/ingredients', function (Request $request) {
+  DB::insert('INSERT INTO ingredients (name, allergens) VALUES (?, ?)', [$request->name, $request->allergens]);
   return response()->json([
-    'message' => 'Ingredient added successfully',
-    'success' => true
+      'message' => 'Ingredient added successfully',
+      'success' => true
   ], 201);
 });
+
+
+
+//  Route::post('/ingredients', function (Request $request) {
+
+//   // Check if name is empty or not
+//   if (empty($request->name)) {
+//     return response()->json([
+//       'message' => 'Ingredient name cannot be empty',
+//       'success' => false
+//     ], 400);
+//   }
+
+//   $name = sanitizeInput($request->name);
+
+//   if (empty($name)) {
+//     return response()->json([
+//       'message' => 'Ingredient name cannot be empty',
+//       'success' => false
+//     ], 400);
+//   }
+
+//   $allergens = '';
+//   if (!empty($request->name)) {
+//     $allergens = sanitizeInput($request->allergens);
+//   }
+
+//   DB::insert('INSERT INTO ingredients (name, allergens) VALUES (?, ?)', [$name, $allergens]);
+//   return response()->json([
+//     'message' => 'Ingredient added successfully',
+//     'success' => true
+//   ], 201);
+// });
  
 
 
@@ -259,7 +270,7 @@ Route::get('/orders', function () {
 });
 
 
-//post
+// Order post
 Route::post('/orders', function (Request $request) {
   $client_id = $request -> client_id;
   $totalquantity = $request -> totalquantity;
@@ -278,4 +289,73 @@ Route::post('/orders', function (Request $request) {
 // Clients
 Route::get('/clients', function () {
   return DB::table('clients')->get();
+});
+
+// LineItem fullfill
+Route::post('/fullfill_line_item', function (Request $request) {
+  $orderId = $request->orderId;
+
+  // Fetch line item from db
+  $lineItem = DB::select("
+    SELECT id, productquantity, product
+    FROM orders
+    WHERE id = " . $orderId . "
+  ")[0];
+  
+  $stockToRemove = $lineItem->productquantity;
+
+  // Fetch product assigned to line item from db
+  $product = DB::select("
+  SELECT id
+  FROM products
+  WHERE name = '" . $lineItem->product . "'
+  ")[0];
+
+  // With the product id get the relevant stock from db in order of expiry date
+  $productStock = DB::select("
+  SELECT id, quantity, expirationDate
+  FROM stockitems
+  WHERE product_id = " . $product->id . "
+  ORDER BY expirationDate ASC
+  ");
+
+  foreach ($productStock as $key => $stock) {
+    $stockToRemove -= $stock->quantity;
+
+    // if stockToRemove is lower than zero
+    if ($stockToRemove <= 0) {
+
+      // update stock in db
+      DB::update("
+      UPDATE stockitems
+      SET quantity = " . abs($stockToRemove) . "
+      WHERE id = " . $stock->id . "
+      ");
+
+      continue;
+    }
+
+    // If last stock item we can go below 0
+    if ($key === array_key_last($productStock)) {
+      // update stock to negative whatever is left in $stockToRemove
+      $newStock =  $stock->quantity - $stockToRemove;
+
+      // update stock in db
+      DB::update("
+      UPDATE stockitems
+      SET quantity = " . $newStock . "
+      WHERE id = " . $stock->id . "
+      ");
+
+      continue;
+    }
+
+    // Update stock in db to 0
+    DB::update("
+    UPDATE stockitems
+    SET quantity = " . 0 . "
+    WHERE id = " . $stock->id . "
+    ");
+  }
+
 });
