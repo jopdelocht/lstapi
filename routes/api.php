@@ -38,7 +38,7 @@ Route::get('/stockitems', function () {
       return response()->json($results);
 });
 
-Route::post('/stockitems', function (Request $request) {
+Route::middleware ('auth:sanctum')->post('/stockitems', function (Request $request) {
    $product_id = $request->product_id;
    $quantity = $request->quantity;
    $expirationdate = $request->expirationdate;
@@ -52,13 +52,13 @@ Route::post('/stockitems', function (Request $request) {
  });
 
 // Route for the stockitems delete
-Route::delete('/stockitems/{id}', function ($id) {
+Route::middleware ('auth:sanctum')->delete('/stockitems/{id}', function ($id) {
   DB::delete('DELETE FROM stockitems WHERE id = ?', [$id]);
   return response()->json(['message' => 'Stockitem deleted successfully'], 200);
 });
 
 // Route for the stockitems update
-Route::patch ('/stockitems/{id}', function ($id, Request $request) {
+Route::middleware ('auth:sanctum')->patch ('/stockitems/{id}', function ($id, Request $request) {
   DB::update('UPDATE stockitems SET product_id = ?, quantity = ?, expirationdate = ?, supplier_id = ? WHERE id = ?', [$request ->product_id, $request->quantity, $request->expirationdate, $request->supplier_id, $id]);
   return response()->json(['message' => 'Stockitem updated successfully'], 200);
 });
@@ -97,7 +97,7 @@ Route::patch ('/stockitems/{id}', function ($id, Request $request) {
 
 
 //POST-method for inserting new products
-Route::post('/products', function (Request $request) {
+Route::middleware ('auth:sanctum')->post('/products', function (Request $request) {
   $name = $request->name;
   $ingredients = $request->ingredients;
   $isfood = $request->isfood;
@@ -108,7 +108,7 @@ Route::post('/products', function (Request $request) {
 });
 
 // PATCH-method for updating products
-Route::patch('/products/{id}', function (Request $request, $id) {
+Route::middleware ('auth:sanctum')->patch('/products/{id}', function (Request $request, $id) {
     $name = $request->name;
     $ingredients = $request->ingredients;
     $isfood = $request->isfood;
@@ -119,7 +119,7 @@ Route::patch('/products/{id}', function (Request $request, $id) {
 });
 
 // DELETE-method for deleting products
-Route::delete('/products/{id}', function ($id) {
+Route::middleware ('auth:sanctum')->delete('/products/{id}', function ($id) {
   DB::delete('DELETE FROM products WHERE id = ?', [$id]);
   return response()->json(['message' => 'Product deleted successfully'], 200);
 });
@@ -189,7 +189,7 @@ Route::delete('/products/{id}', function ($id) {
 });
 
 // POST-method for inserting new ingredients
-Route::post('/ingredients', function (Request $request) {
+Route::middleware ('auth:sanctum')->post('/ingredients', function (Request $request) {
   DB::insert('INSERT INTO ingredients (name, allergens) VALUES (?, ?)', [$request->name, $request->allergens]);
   return response()->json([
       'message' => 'Ingredient added successfully',
@@ -198,13 +198,13 @@ Route::post('/ingredients', function (Request $request) {
 });
 
 //  route for the ingredients delete
-Route::delete('/ingredients/{id}', function ($id) {
+Route::middleware ('auth:sanctum')->delete('/ingredients/{id}', function ($id) {
   DB::delete('DELETE FROM ingredients WHERE id = ?', [$id]);
   return response()->json(['message' => 'Ingredient deleted successfully'], 200);
 });
 
 // route for the ingredients update
-Route::patch ('/ingredients/{id}', function ($id, Request $request) {
+Route::middleware ('auth:sanctum')->patch ('/ingredients/{id}', function ($id, Request $request) {
   DB::update('UPDATE ingredients SET name = ?, allergens = ? WHERE id = ?', [$request->name, $request->allergens, $id]);
   return response()->json(['message' => 'Ingredient updated successfully'], 200);
 });
@@ -256,7 +256,7 @@ Route::patch ('/ingredients/{id}', function ($id, Request $request) {
  });
  
 // POST-method for inserting new suppliers
- Route::post('/suppliers', function (Request $request) {
+ Route::middleware ('auth:sanctum')->post('/suppliers', function (Request $request) {
   $name = $request->name;
 
 function sanitizeInput(string $input): string
@@ -274,13 +274,13 @@ function sanitizeInput(string $input): string
  });
 
  //  Route for the suppliers delete
- Route::delete('/suppliers/{id}', function ($id) {
+ Route::middleware ('auth:sanctum')->delete('/suppliers/{id}', function ($id) {
   DB::delete('DELETE FROM suppliers WHERE id = ?', [$id]);
   return response()->json(['message' => 'Supplier deleted successfully'], 200);
 });
 
 //  Route for the suppliers update
- Route::patch ('/suppliers/{id}', function ($id, Request $request) {
+ Route::middleware ('auth:sanctum')->patch ('/suppliers/{id}', function ($id, Request $request) {
   DB::update('UPDATE suppliers SET name = ? WHERE id = ?', [$request->name, $id]);
   return response()->json(['message' => 'Supplier updated successfully'], 200);
 });
@@ -332,7 +332,7 @@ Route::get('/orders', function () {
 
 
 // route for order post
-Route::post('/orders', function (Request $request) {
+Route::middleware ('auth:sanctum')->post('/orders', function (Request $request) {
   $client_id = $request -> client_id;
   $totalquantity = $request -> totalquantity;
   $recipe = $request -> recipe;
@@ -356,7 +356,7 @@ Route::get('/clients', function () {
 });
 
 // LineItem fullfill
-Route::post('/fullfill_line_item', function (Request $request) {
+Route::middleware ('auth:sanctum')->post('/fullfill_line_item', function (Request $request) {
   $orderId = $request->orderId;
 
   // Fetch line item from db
@@ -425,12 +425,12 @@ Route::post('/fullfill_line_item', function (Request $request) {
 });
 
 // route for the orders delete
-Route::delete('/orders/{id}', function ($id) {
+Route::middleware ('auth:sanctum')->delete('/orders/{id}', function ($id) {
   DB::delete('DELETE FROM orders WHERE id = ?', [$id]);
   return response()->json(['message' => 'Order deleted successfully'], 200);
 });
 // route for orders edit
-Route::patch('/orders/{id}', function ($id, Request $request) {
+Route::middleware ('auth:sanctum')->patch('/orders/{id}', function ($id, Request $request) {
     // Retrieve the order from the database
     $order = DB::table('orders')->where('id', $id)->first();
 
