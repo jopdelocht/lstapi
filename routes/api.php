@@ -322,14 +322,16 @@ Route::get('/orders', function () {
   orders.type,
   orders.product,
   orders.ingredient,
-  orders.allergen
+  orders.allergen,
+  orders.deliverydate,
+  orders.orderdate
   FROM orders
   LEFT JOIN clients ON clients.id = orders.client_id
   ");
 });
 
 
-// Order post
+// route for order post
 Route::post('/orders', function (Request $request) {
   $client_id = $request -> client_id;
   $totalquantity = $request -> totalquantity;
@@ -339,11 +341,14 @@ Route::post('/orders', function (Request $request) {
   $type = $request -> type;
   $ingredient = $request -> ingredient;
   $allergen = $request -> allergen;
+  $deliverydate = $request -> deliverydate;
+  $orderdate = $request -> orderdate;
 
-  DB::insert('INSERT INTO orders (client_id, totalquantity, recipe, productquantity, product, type, ingredient, allergen)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [$client_id, $totalquantity, $recipe, $productquantity, $product, $type, $ingredient, $allergen]);
+  DB::insert('INSERT INTO orders (client_id, totalquantity, recipe, productquantity, product, type, ingredient, allergen, deliverydate, orderdate)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [$client_id, $totalquantity, $recipe, $productquantity, $product, $type, $ingredient, $allergen, $deliverydate, $orderdate]);
   return response()->json(['message' => 'Order added successfully'], 201);
 });
+
 
 // Clients
 Route::get('/clients', function () {
