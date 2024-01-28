@@ -42,9 +42,7 @@ Route::post('/stockitems', function (Request $request) {
    $product_id = $request->product_id;
    $quantity = $request->quantity;
    $expirationdate = $request->expirationdate;
-  //  $isfood = $request->isfood;
    $supplier_id = $request->supplier_id;
-  //  $ingredient_id = $request->ingredient_id;
 
     DB::insert('INSERT INTO stockitems (product_id, quantity, expirationdate, supplier_id) 
     VALUES (?, ?, ?, ?)', [$product_id, $quantity, $expirationdate, $supplier_id]);
@@ -63,19 +61,6 @@ Route::patch ('/stockitems/{id}', function ($id, Request $request) {
   return response()->json(['message' => 'Stockitem updated successfully'], 200);
 });
 
-// // Products
-//  Route::get('/products', function () {
-//   $products = DB::table('products')
-//       ->select('products.id', 'products.name AS productname', 'ingredients.name AS ingredientname',  'types.name AS type')
-//       ->leftJoin('ingredients', 'ingredients.id', '=', 'products.ingredients')
-//       // ->leftJoin('allergens', 'allergens.id', '=', 'products.allergen_id')
-//       ->leftJoin('types', 'types.id', '=', 'products.type_id')
-//       ->orderBy('productname', 'ASC')
-//       ->get();
-
-//   return response()->json($products);
-// });
-
  // Products
  Route::get('/products', function (Request $request) {
   $result = DB::select("
@@ -92,9 +77,6 @@ Route::patch ('/stockitems/{id}', function ($id, Request $request) {
   ");
   return response()->json($result, 200);
 });
-
-
-
 
 //POST-method for inserting new products
 Route::post('/products', function (Request $request) {
@@ -155,8 +137,6 @@ Route::delete('/products/{id}', function ($id) {
 });
  // token routes
  Route::post('/tokens/create', function (Request $request) {
-  // Assuming the user ID is sent with the request
-  // and you are authenticated to get the user ID from the request
   $userId = $request->user()->id;
   $user = User::find($userId);
 
@@ -208,42 +188,6 @@ Route::patch ('/ingredients/{id}', function ($id, Request $request) {
   DB::update('UPDATE ingredients SET name = ?, allergens = ? WHERE id = ?', [$request->name, $request->allergens, $id]);
   return response()->json(['message' => 'Ingredient updated successfully'], 200);
 });
-
-
-
-
-//  Route::post('/ingredients', function (Request $request) {
-
-//   // Check if name is empty or not
-//   if (empty($request->name)) {
-//     return response()->json([
-//       'message' => 'Ingredient name cannot be empty',
-//       'success' => false
-//     ], 400);
-//   }
-
-//   $name = sanitizeInput($request->name);
-
-//   if (empty($name)) {
-//     return response()->json([
-//       'message' => 'Ingredient name cannot be empty',
-//       'success' => false
-//     ], 400);
-//   }
-
-//   $allergens = '';
-//   if (!empty($request->name)) {
-//     $allergens = sanitizeInput($request->allergens);
-//   }
-
-//   DB::insert('INSERT INTO ingredients (name, allergens) VALUES (?, ?)', [$name, $allergens]);
-//   return response()->json([
-//     'message' => 'Ingredient added successfully',
-//     'success' => true
-//   ], 201);
-// });
- 
-
 
 // Allergens 
  Route::get('/allergens', function () {
